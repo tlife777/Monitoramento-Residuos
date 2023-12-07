@@ -54,6 +54,7 @@ static const u4_t DEVADDR = 0xF3E35972;
 const unsigned TX_INTERVAL = 1; //1800s = 30 minutos 
 
 /* Variáveis e objetos globais */
+
 static osjob_t sendjob;
 VL53L0X sensor;
 TinyGPSPlus gps;
@@ -132,7 +133,7 @@ void onEvent (ev_t ev)
             else{
               trocaDados = false;
               LMIC_shutdown();
-              espSleep(1800);
+              espSleep(60);
             }
             break;
 
@@ -314,9 +315,8 @@ void dadosSensores(char **p_dados, int *tamanhoStr)
 {
   uint8_t bateria = leituraBat();
   uint16_t distancia = leituraSensor();
-  uint8_t temperatura = getTemperature();
   
-  *tamanhoStr = snprintf(NULL, 0, "{\"bat\": %d, \"dist\": %d, \"temp\": %d}", bateria, distancia, temperatura);
+  *tamanhoStr = snprintf(NULL, 0, "{\"bat\": %d, \"dist\": %d, \"temp\": %d}", bateria, distancia);
   *p_dados = (char*)malloc((*tamanhoStr + 1) * sizeof(char));
   if(*p_dados == NULL)
   {
@@ -326,7 +326,7 @@ void dadosSensores(char **p_dados, int *tamanhoStr)
   }
   else
   {
-    snprintf(*p_dados, *tamanhoStr + 1, "{\"bat\": %d, \"dist\": %d, \"temp\": %d}", bateria, distancia, temperatura);
+    snprintf(*p_dados, *tamanhoStr + 1, "{\"bat\": %d, \"dist\": %d}", bateria, distancia);
     Serial.println(*p_dados);
   }
 }
@@ -384,7 +384,7 @@ bool checkFall(bool checkSleep)
     }
     else if(tempoAtual - 0 > 1000 && digitalRead(34) == LOW)
     {
-      espSleep(1800);
+      espSleep(60);
       return false;
     }
     return false;
