@@ -51,7 +51,7 @@ static const u1_t PROGMEM APPSKEY[16] = { 0xFA, 0xCE, 0x15, 0x44, 0x41, 0x86, 0x
 static const u4_t DEVADDR = 0xF3E35972;
 
 /* - Tempo entre envios de pacotes LoRa */
-const unsigned TX_INTERVAL = 1; //1800s = 30 minutos 
+const unsigned TX_INTERVAL = 1;
 
 /* Variáveis e objetos globais */
 
@@ -64,9 +64,7 @@ RTC_DATA_ATTR bool sleepWakeup = false;
 
 
 void os_getArtEui (u1_t* buf) {}
-
 void os_getDevEui (u1_t* buf) {}
-
 void os_getDevKey (u1_t* buf) {}
 
 
@@ -129,11 +127,14 @@ void onEvent (ev_t ev)
             os_setTimedCallback(&sendjob, os_getTime()+sec2osticks(TX_INTERVAL), do_send);
 
             if(trocaDados == false)
+            {
               trocaDados = true;
+              digitalWrite(32, LOW); //Desliga o sensor de distância
+            }
             else{
               trocaDados = false;
               LMIC_shutdown();
-              espSleep(60);
+              espSleep(1800);
             }
             break;
 
@@ -197,16 +198,14 @@ void setup()
     Serial.begin(BAUDRATE_SERIAL_DEBUG);
     Serial1.begin(9600, SERIAL_8N1, 16, 17);
     pinMode(33, OUTPUT);
-    pinMode(4, INPUT_PULLDOWN);
+    pinMode(4, INPUT);
     pinMode(32, OUTPUT);
     pinMode(34, INPUT);
-
-    while(checkFall(sleepWakeup) == false)
-
-
     digitalWrite(33, HIGH);
     digitalWrite(32, HIGH);
 
+    while(checkFall(sleepWakeup) == false)
+    {}
 
     Wire.begin();
     configSensor();
@@ -365,6 +364,9 @@ void espSleep(unsigned int secondsSleep)
   esp_sleep_enable_timer_wakeup(secondsSleep * uS_TO_S_FACTOR);
   esp_sleep_enable_ext0_wakeup(GPIO_NUM_34, 1); //1 = High, 0 = Low
   sleepWakeup = true;
+  digitalWrite(33, LOW);
+  digitalWrite(32, LOW);
+
   Serial.println("Dormindo...");
   esp_deep_sleep_start();
 }
@@ -378,13 +380,19 @@ bool checkFall(bool checkSleep)
 {
   unsigned long tempoAtual = millis();
   if(checkSleep == true){
+    if(esp_sleep_get_wakeup_cause() == ESP_SLEEP_WAKEUP_TIMER)
+    {
+      sleepWakeup = false;
+      return true;  
+    }
+
     if(tempoAtual - 0 > 500 && digitalRead(34) == HIGH){
       sleepWakeup = false;
       return true;
     }
     else if(tempoAtual - 0 > 1000 && digitalRead(34) == LOW)
     {
-      espSleep(60);
+      espSleep(1800);
       return false;
     }
     return false;
