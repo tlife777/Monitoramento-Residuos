@@ -51,7 +51,7 @@ static const u1_t PROGMEM APPSKEY[16] = { 0xFA, 0xCE, 0x15, 0x44, 0x41, 0x86, 0x
 static const u4_t DEVADDR = 0xF3E35972;
 
 /* - Tempo entre envios de pacotes LoRa */
-const unsigned TX_INTERVAL = 1;
+const unsigned TX_INTERVAL = 1; //1800s = 30 minutos 
 
 /* Variáveis e objetos globais */
 
@@ -60,11 +60,14 @@ VL53L0X sensor;
 TinyGPSPlus gps;
 bool trocaDados = false;
 RTC_DATA_ATTR bool sleepWakeup = false;
+RTC_DATA_ATTR uint16_t cont = 0;
 
 
 
 void os_getArtEui (u1_t* buf) {}
+
 void os_getDevEui (u1_t* buf) {}
+
 void os_getDevKey (u1_t* buf) {}
 
 
@@ -125,17 +128,18 @@ void onEvent (ev_t ev)
             }
             
             os_setTimedCallback(&sendjob, os_getTime()+sec2osticks(TX_INTERVAL), do_send);
-
-            if(trocaDados == false)
+            if(cont == 1)
             {
-              trocaDados = true;
-              digitalWrite(32, LOW); //Desliga o sensor de distância
-            }
-            else{
-              trocaDados = false;
-              LMIC_shutdown();
-              espSleep(1800);
-            }
+              if(trocaDados == false)
+                trocaDados = true;
+              else{
+                trocaDados = false;
+                LMIC_shutdown();
+                espSleep(60);
+              }
+            }else
+              espSleep(60);
+            
             break;
 
         case EV_LOST_TSYNC:
@@ -197,19 +201,30 @@ void setup()
     
     Serial.begin(BAUDRATE_SERIAL_DEBUG);
     Serial1.begin(9600, SERIAL_8N1, 16, 17);
-    pinMode(33, OUTPUT);
-    pinMode(4, INPUT);
+    
+    pinMode(4, INPUT_PULLDOWN);
     pinMode(32, OUTPUT);
+    pinMode(33, OUTPUT);
     pinMode(34, INPUT);
-    digitalWrite(33, HIGH);
-    digitalWrite(32, HIGH);
+    
+    
 
     while(checkFall(sleepWakeup) == false)
-    {}
+
+    digitalWrite(33, LOW);
+    digitalWrite(32, HIGH);
+    
+    ++cont;
+    Serial.print("Contador: ");
+    Serial.println(cont);
+    if(cont >= 10)
+      cont = 0;
+
 
     Wire.begin();
     configSensor();
-    
+    digitalWrite(33, HIGH);
+
 
     SPI.begin(RADIO_SCLK_PORT, RADIO_MISO_PORT, RADIO_MOSI_PORT);
 
@@ -246,13 +261,14 @@ void setup()
 void loop() 
 {
   bool gpsDataReceived = false;
-  while(!gpsDataReceived)
-  {
-    while(Serial1.available() > 0)
-      if(gps.encode(Serial1.read()))
-        if(gps.location.isValid())
-          gpsDataReceived = true;
-  }
+  if(cont == 1)
+    while(!gpsDataReceived)
+    {
+      while(Serial1.available() > 0)
+        if(gps.encode(Serial1.read()))
+          if(gps.location.isValid())
+            gpsDataReceived = true;
+    }
   
   os_runloop_once();    
 }
@@ -302,7 +318,7 @@ unsigned int leituraSensor(void)
   unsigned long contSensor = 0;
   for(int i = 0; i < 10; i++)
   {
-      contSensor += sensor.readRangeSingleMillimeters();;
+      contSensor += sensor.readRangeSingleMillimeters();
   }
   Serial.print("Distancia média: ");
   Serial.print(contSensor/10);
@@ -315,7 +331,7 @@ void dadosSensores(char **p_dados, int *tamanhoStr)
   uint8_t bateria = leituraBat();
   uint16_t distancia = leituraSensor();
   
-  *tamanhoStr = snprintf(NULL, 0, "{\"bat\": %d, \"dist\": %d, \"temp\": %d}", bateria, distancia);
+  *tamanhoStr = snprintf(NULL, 0, "{\"bat\": %d, \"dist\": %d}", bateria, distancia);
   *p_dados = (char*)malloc((*tamanhoStr + 1) * sizeof(char));
   if(*p_dados == NULL)
   {
@@ -364,35 +380,27 @@ void espSleep(unsigned int secondsSleep)
   esp_sleep_enable_timer_wakeup(secondsSleep * uS_TO_S_FACTOR);
   esp_sleep_enable_ext0_wakeup(GPIO_NUM_34, 1); //1 = High, 0 = Low
   sleepWakeup = true;
-  digitalWrite(33, LOW);
-  digitalWrite(32, LOW);
-
   Serial.println("Dormindo...");
   esp_deep_sleep_start();
 }
 
-float getTemperature(void)
-{
-  return (hallRead() - 32) / 1.8;
-}
 
 bool checkFall(bool checkSleep)
 {
   unsigned long tempoAtual = millis();
+  Serial.println("Checando...");
+  Serial.println(digitalRead(34));
   if(checkSleep == true){
-    if(esp_sleep_get_wakeup_cause() == ESP_SLEEP_WAKEUP_TIMER)
-    {
-      sleepWakeup = false;
-      return true;  
-    }
-
     if(tempoAtual - 0 > 500 && digitalRead(34) == HIGH){
       sleepWakeup = false;
       return true;
     }
     else if(tempoAtual - 0 > 1000 && digitalRead(34) == LOW)
     {
-      espSleep(1800);
+      Serial.println("Apenas tremeu");
+      Serial.print("Tempo restante: ");
+      Serial.println((60000000 -   esp_timer_get_time())/1000000);
+      espSleep(60);
       return false;
     }
     return false;
