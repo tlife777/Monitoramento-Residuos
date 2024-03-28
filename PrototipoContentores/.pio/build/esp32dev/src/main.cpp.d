@@ -1,22 +1,22 @@
 .pio/build/esp32dev/src/main.cpp.o: src/main.cpp \
- .pio/libdeps/esp32dev/arduino-lmic-2.3.2/src/lmic.h \
- .pio/libdeps/esp32dev/arduino-lmic-2.3.2/src/arduino_lmic.h \
- .pio/libdeps/esp32dev/arduino-lmic-2.3.2/src/lmic/lmic.h \
- .pio/libdeps/esp32dev/arduino-lmic-2.3.2/src/lmic/oslmic.h \
- .pio/libdeps/esp32dev/arduino-lmic-2.3.2/src/lmic/config.h \
- .pio/libdeps/esp32dev/arduino-lmic-2.3.2/src/lmic/lmic_config_preconditions.h \
- .pio/libdeps/esp32dev/arduino-lmic-2.3.2/src/lmic/../../project_config/lmic_project_config.h \
- .pio/libdeps/esp32dev/arduino-lmic-2.3.2/src/lmic/lmic_env.h \
- .pio/libdeps/esp32dev/arduino-lmic-2.3.2/src/lmic/oslmic_types.h \
- .pio/libdeps/esp32dev/arduino-lmic-2.3.2/src/lmic/hal.h \
- .pio/libdeps/esp32dev/arduino-lmic-2.3.2/src/lmic/lorabase.h \
- .pio/libdeps/esp32dev/arduino-lmic-2.3.2/src/lmic/lorabase_au921.h \
- .pio/libdeps/esp32dev/arduino-lmic-2.3.2/src/lmic/lmic_bandplan.h \
- .pio/libdeps/esp32dev/arduino-lmic-2.3.2/src/lmic/lmic_bandplan_au921.h \
- .pio/libdeps/esp32dev/arduino-lmic-2.3.2/src/lmic/lmic_us_like.h \
- .pio/libdeps/esp32dev/arduino-lmic-2.3.2/src/lmic/lmic_util.h \
- .pio/libdeps/esp32dev/arduino-lmic-2.3.2/src/hal/hal.h \
- .pio/libdeps/esp32dev/arduino-lmic-2.3.2/src/arduino_lmic_hal_configuration.h \
+ lib/arduino-lmic-2.3.2/src/lmic.h \
+ lib/arduino-lmic-2.3.2/src/arduino_lmic.h \
+ lib/arduino-lmic-2.3.2/src/lmic/lmic.h \
+ lib/arduino-lmic-2.3.2/src/lmic/oslmic.h \
+ lib/arduino-lmic-2.3.2/src/lmic/config.h \
+ lib/arduino-lmic-2.3.2/src/lmic/lmic_config_preconditions.h \
+ lib/arduino-lmic-2.3.2/src/lmic/../../project_config/lmic_project_config.h \
+ lib/arduino-lmic-2.3.2/src/lmic/lmic_env.h \
+ lib/arduino-lmic-2.3.2/src/lmic/oslmic_types.h \
+ lib/arduino-lmic-2.3.2/src/lmic/hal.h \
+ lib/arduino-lmic-2.3.2/src/lmic/lorabase.h \
+ lib/arduino-lmic-2.3.2/src/lmic/lorabase_au921.h \
+ lib/arduino-lmic-2.3.2/src/lmic/lmic_bandplan.h \
+ lib/arduino-lmic-2.3.2/src/lmic/lmic_bandplan_au921.h \
+ lib/arduino-lmic-2.3.2/src/lmic/lmic_us_like.h \
+ lib/arduino-lmic-2.3.2/src/lmic/lmic_util.h \
+ lib/arduino-lmic-2.3.2/src/hal/hal.h \
+ lib/arduino-lmic-2.3.2/src/arduino_lmic_hal_configuration.h \
  C:/Users/kaique.alves/.platformio/packages/framework-arduinoespressif32/libraries/SPI/src/SPI.h \
  C:/Users/kaique.alves/.platformio/packages/framework-arduinoespressif32/variants/esp32/pins_arduino.h \
  C:/Users/kaique.alves/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-spi.h \
@@ -155,4 +155,4 @@
  C:/Users/kaique.alves/.platformio/packages/framework-arduinoespressif32/cores/esp32/io_pin_remap.h \
  C:/Users/kaique.alves/.platformio/packages/framework-arduinoespressif32/cores/esp32/Arduino.h \
  .pio/libdeps/esp32dev/TinyGPSPlus/src/TinyGPSPlus.h \
- .pio/libdeps/esp32dev/TinyGPSPlus/src/TinyGPS++.h
+ .pio/libdeps/esp32dev/TinyGPSPlus/src/TinyGPS++.h lib/defines/defines.h

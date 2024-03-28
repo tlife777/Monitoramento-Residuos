@@ -4,28 +4,15 @@
 #include <Wire.h>
 #include <VL53L0X.h>
 #include <TinyGPSPlus.h>
-/* Definições gerais */
-#define BAUDRATE_SERIAL_DEBUG   115200
+#include "defines.h"
 
-/* Definições do rádio LoRa (SX1276) */
-#define GANHO_LORA_DBM          20 //dBm
-
-#define RADIO_RESET_PORT 12
-#define RADIO_MOSI_PORT 23
-#define RADIO_MISO_PORT 19
-#define RADIO_SCLK_PORT 18
-#define RADIO_NSS_PORT 5
-#define RADIO_DIO0_PORT 27
-#define RADIO_DIO1_PORT 26
-#define RADIO_DIO2_PORT 25
-
-#define uS_TO_S_FACTOR 1000000
 
 byte leituraBat(void);
 unsigned int leituraSensor(void);
 void configSensor(void);
 void onEvent (ev_t ev);
 void do_send(osjob_t* j);
+void dataProcessing(char **p_dados, uint16_t *tamanhoStr);
 void dadosSensores(char **p_dados, int *tamanhoStr);
 void dadosGPS(char **p_dados, int *tamanhoStr);
 void getGPS(float *p_lat, float *p_lon);
@@ -128,17 +115,10 @@ void onEvent (ev_t ev)
             }
             
             os_setTimedCallback(&sendjob, os_getTime()+sec2osticks(TX_INTERVAL), do_send);
-            if(cont == 1)
-            {
-              if(trocaDados == false)
-                trocaDados = true;
-              else{
-                trocaDados = false;
-                LMIC_shutdown();
-                espSleep(60);
-              }
-            }else
-              espSleep(60);
+            
+            //LMIC_shutdown();
+            //espSleep(20);
+        
             
             break;
 
@@ -172,13 +152,18 @@ void onEvent (ev_t ev)
 void do_send(osjob_t* j)
 {
     char *p_dados = NULL;
-    int tamanhoStr = 0;
+    uint16_t tamanhoStr = 0;
+    bool gpsDataReceived = false;
 
-    if(trocaDados == false)
-      dadosSensores(&p_dados, &tamanhoStr);
-    else
-      dadosGPS(&p_dados, &tamanhoStr);
+    while(!gpsDataReceived)
+    {
+      while(Serial1.available() > 0)
+        if(gps.encode(Serial1.read()))
+          if(gps.location.isValid())
+            gpsDataReceived = true;
+    }
 
+    dataProcessing(&p_dados, &tamanhoStr);
     
     if (LMIC.opmode & OP_TXRXPEND) 
     {
@@ -209,18 +194,10 @@ void setup()
     
     
 
-    while(checkFall(sleepWakeup) == false)
+    //while(checkFall(sleepWakeup) == false)
 
     digitalWrite(33, LOW);
     digitalWrite(32, HIGH);
-    
-    ++cont;
-    Serial.print("Contador: ");
-    Serial.println(cont);
-    if(cont >= 10)
-      cont = 0;
-
-
     Wire.begin();
     configSensor();
     digitalWrite(33, HIGH);
@@ -254,22 +231,14 @@ void setup()
 
 
     LMIC_setDrTxpow(DR_SF12, GANHO_LORA_DBM);
-
+    Serial.println("Entrou no do_send");
     do_send(&sendjob);
+    Serial.println("Saiu do do_send");
+
 }
 
 void loop() 
 {
-  bool gpsDataReceived = false;
-  if(cont == 1)
-    while(!gpsDataReceived)
-    {
-      while(Serial1.available() > 0)
-        if(gps.encode(Serial1.read()))
-          if(gps.location.isValid())
-            gpsDataReceived = true;
-    }
-  
   os_runloop_once();    
 }
 
@@ -326,35 +295,17 @@ unsigned int leituraSensor(void)
   return contSensor/10;
 }
 
-void dadosSensores(char **p_dados, int *tamanhoStr)
+void dataProcessing(char **p_dados, uint16_t *tamanhoStr)
 {
+  uint8_t tombo = digitalRead(34);
   uint8_t bateria = leituraBat();
   uint16_t distancia = leituraSensor();
-  
-  *tamanhoStr = snprintf(NULL, 0, "{\"bat\": %d, \"dist\": %d}", bateria, distancia);
-  *p_dados = (char*)malloc((*tamanhoStr + 1) * sizeof(char));
-  if(*p_dados == NULL)
-  {
-    Serial.println("Erro ao alocar memoria");
-    delay(1000);
-    ESP.restart();
-  }
-  else
-  {
-    snprintf(*p_dados, *tamanhoStr + 1, "{\"bat\": %d, \"dist\": %d}", bateria, distancia);
-    Serial.println(*p_dados);
-  }
-}
-
-void dadosGPS(char **p_dados, int *tamanhoStr)
-{
   float latitude = 0;
   float longitude = 0;
 
-  
   getGPS(&latitude, &longitude);
 
-  *tamanhoStr = snprintf(NULL, 0, "{\"lat\": %.6f, \"lon\": %.6f}", latitude, longitude);
+  *tamanhoStr = snprintf(NULL, 0, "%03d%04d%03.6f%03.6f%d", bateria, distancia, latitude, longitude, tombo);
   *p_dados = (char*)malloc((*tamanhoStr + 1) * sizeof(char));
   if(*p_dados == NULL)
   {
@@ -364,10 +315,13 @@ void dadosGPS(char **p_dados, int *tamanhoStr)
   }
   else
   {
-    snprintf(*p_dados, *tamanhoStr + 1, "{\"lat\": %.6f, \"lon\": %.6f}", latitude, longitude);
+    snprintf(*p_dados, *tamanhoStr + 1, "%03d%04d%03.6f%03.6f%d", bateria, distancia, latitude, longitude, tombo);
     Serial.println(*p_dados);
   }
+  
 }
+
+
 
 void getGPS(float *p_lat, float *p_lon)
 {
@@ -378,7 +332,7 @@ void getGPS(float *p_lat, float *p_lon)
 void espSleep(unsigned int secondsSleep)
 {
   esp_sleep_enable_timer_wakeup(secondsSleep * uS_TO_S_FACTOR);
-  esp_sleep_enable_ext0_wakeup(GPIO_NUM_34, 1); //1 = High, 0 = Low
+  //esp_sleep_enable_ext0_wakeup(GPIO_NUM_34, 1); //1 = High, 0 = Low
   sleepWakeup = true;
   Serial.println("Dormindo...");
   esp_deep_sleep_start();
