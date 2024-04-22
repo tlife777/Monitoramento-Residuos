@@ -17,4 +17,6 @@
 
 #define uS_TO_S_FACTOR 1000000
 
+#define SLEEP_TIME 30 //minutes
+
 #endif
