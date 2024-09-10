@@ -53,14 +53,3 @@ uint16_t leituraSensor() {
     Serial.println("mm");
     return contSensor / 10;
 }
-
-// Função para obter dados do GPS
-void getGPS(double *p_lat, double *p_lon) {
-    while (Serial1.available() > 0) {
-        gps.encode(Serial1.read());
-        if (gps.location.isValid()) {
-            *p_lat = gps.location.lat();
-            *p_lon = gps.location.lng();
-        }
-    }
-}
