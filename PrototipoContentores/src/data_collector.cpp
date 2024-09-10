@@ -7,10 +7,8 @@
 void coletar_dados(char **p_dados, uint16_t *tamanhoStr) {
     uint8_t batery = leituraBat();
     uint16_t volume = leituraSensor();
-    double latitude = 0;
-    double longitude = 0;
-
-    getGPS(&latitude, &longitude);
+    double latitude = -23.470270;
+    double longitude = -47.429062;
 
     // Formatação da string de envio
     *tamanhoStr = snprintf(nullptr, 0, "%03d,%04d,%03.6f,%03.6f", batery, volume, latitude, longitude);
