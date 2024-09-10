@@ -15,9 +15,9 @@
 #define RADIO_MISO_PORT 19
 #define RADIO_SCLK_PORT 18
 #define RADIO_NSS_PORT 5
-#define RADIO_DIO0_PORT 25  
+#define RADIO_DIO0_PORT 27  
 #define RADIO_DIO1_PORT 26
-#define RADIO_DIO2_PORT 27
+#define RADIO_DIO2_PORT 25
 // #define FREQUENCY 915E6
 
 // Definições de pinos para sensores
