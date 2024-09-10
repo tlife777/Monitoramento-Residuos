@@ -30,14 +30,11 @@ void loop() {
     char* dados = nullptr;
     uint16_t tamanhoStr = 0;
 
-    Serial.println("Coletando dados..."); // Adiciona log para depuração
-
     // Coleta e processa dados
     coletar_dados(&dados, &tamanhoStr);
 
     // Verifica se os dados são válidos antes de enviar
     if (dados != nullptr) {
-        Serial.println("Dados válidos coletados. Enviando via LoRa..."); // Adiciona log para depuração
         enviarDadosLoRa(dados);
         free(dados); // Libera a memória alocada
     } else {
