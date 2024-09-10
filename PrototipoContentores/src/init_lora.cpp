@@ -24,6 +24,5 @@ void enviarDadosLoRa(const char* dados) {
     LoRa.beginPacket();     // Inicia o pacote LoRa
     LoRa.print(dados);       // Adiciona os dados ao pacote
     LoRa.endPacket();       // Envia o pacote
-    Serial.println("Dados enviados via LoRa: ");
-    Serial.println(dados);   // Exibe os dados enviados para depuração
+    Serial.println("Dados enviados com sucesso.");
 }
