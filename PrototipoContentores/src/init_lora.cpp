@@ -10,6 +10,12 @@ void init_lora() {
         Serial.println("Erro ao iniciar o LoRa");
         while (true);
     }
+
+    // Configurações do LoRa
+    LoRa.setCodingRate4(5);         // Coding rate 4/5
+    LoRa.setSpreadingFactor(7);     // Spreading factor 7
+    LoRa.setSignalBandwidth(125E3); // Bandwidth de 125 kHz
+    
     Serial.println("LoRa inicializado com sucesso");
 }
 
