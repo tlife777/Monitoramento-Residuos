@@ -1,17 +1,7 @@
 #include "sensors.h"
 #include "init_lora.h"
-#include <lmic.h>
-#include <hal/hal.h>
 #include "utils.h"
 #include "data_collector.h" 
-
-/* Constantes do LMIC */
-const lmic_pinmap lmic_pins = {
-    .nss = RADIO_NSS_PORT,
-    .rxtx = LMIC_UNUSED_PIN,
-    .rst = RADIO_RESET_PORT,
-    .dio = {RADIO_DIO0_PORT, RADIO_DIO1_PORT, RADIO_DIO2_PORT},
-};
 
 TinyGPSPlus gps;    // Inicializa o módulo GPS
 VL53L0X sensor;     // Inicializa o sensor de distância a laser
