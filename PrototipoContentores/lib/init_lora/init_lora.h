@@ -4,7 +4,7 @@
 #include <LoRa.h>
 
 // Prototipação das funções
-void init_lora();
-void enviarDadosLoRa(const char* dados);
+void initLora();
+void sendLoraPayload(const char* dados);
 
 #endif 

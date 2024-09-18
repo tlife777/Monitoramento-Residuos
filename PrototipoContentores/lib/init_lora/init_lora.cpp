@@ -2,7 +2,7 @@
 #include "init_lora.h"
 #include "utils.h"
 
-void init_lora() {
+void initLora() {
     // Inicializa o LoRa SPI
     LoRa.setPins(RADIO_NSS_PORT, RADIO_RESET_PORT, RADIO_DIO0_PORT);
 
@@ -20,7 +20,7 @@ void init_lora() {
 }
 
 // Função para enviar dados via LoRa
-void enviarDadosLoRa(const char* dados) {
+void sendLoraPayload(const char* dados) {
     LoRa.beginPacket();     // Inicia o pacote LoRa
     LoRa.print(dados);       // Adiciona os dados ao pacote
     LoRa.endPacket();       // Envia o pacote
