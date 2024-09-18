@@ -13,6 +13,5 @@ extern VL53L0X sensor;
 void initSensors();
 uint8_t leituraBat();
 uint16_t leituraSensor();
-void getGPS(double *p_lat, double *p_lon);
 
 #endif 
