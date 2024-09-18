@@ -1,5 +1,6 @@
 #include "sensors.h"
 #include "utils.h"
+#include "Arduino.h"
 
 // Inicializa os sensores
 void init_sensors() {
