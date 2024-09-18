@@ -1,8 +1,11 @@
 // data_collector.cpp
+#include <Arduino.h> // Inclua Arduino.h para definir uint16_t
+
 #include "data_collector.h"
 #include "sensors.h"
 #include "init_lora.h"
 #include "utils.h"
+
 
 void coletar_dados(char **p_dados, uint16_t *tamanhoStr) {
     uint8_t batery = leituraBat();
