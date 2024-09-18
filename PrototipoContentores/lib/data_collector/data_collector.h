@@ -4,6 +4,6 @@
 
 #include <stdint.h>
 
-void coletar_dados(char **p_dados, uint16_t *tamanhoStr);
+void dataCollector(char **p_dados, uint16_t *tamanhoStr);
 
 #endif 

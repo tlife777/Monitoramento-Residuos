@@ -7,7 +7,7 @@
 #include "utils.h"
 
 
-void coletar_dados(char **p_dados, uint16_t *tamanhoStr) {
+void dataCollector(char **p_dados, uint16_t *tamanhoStr) {
     uint8_t batery = leituraBat();
     uint16_t volume = leituraSensor();
     double latitude = -23.470270;
