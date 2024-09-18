@@ -10,7 +10,7 @@ extern TinyGPSPlus gps;
 extern VL53L0X sensor;
 
 // Prototipação das funções
-void init_sensors();
+void initSensors();
 uint8_t leituraBat();
 uint16_t leituraSensor();
 void getGPS(double *p_lat, double *p_lon);

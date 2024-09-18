@@ -3,7 +3,7 @@
 #include "Arduino.h"
 
 // Inicializa os sensores
-void init_sensors() {
+void initSensors() {
     Serial1.begin(9600, SERIAL_8N1, 16, 17);  // Inicializa a comunicação serial com o GPS
 
     pinMode(4, INPUT_PULLDOWN);
