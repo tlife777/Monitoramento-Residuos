@@ -2,6 +2,12 @@
 #include "utils.h"
 #include "Arduino.h"
 
+#define R1 30000.00
+#define R2 100000.00
+
+#define MAX_VOLTAGE 4.2
+#define MIN_VOLTAGE 3.5
+
 // Inicializa os sensores
 void initSensors() {
     Serial1.begin(9600, SERIAL_8N1, 16, 17);  // Inicializa a comunicação serial com o GPS
@@ -30,14 +36,24 @@ void initSensors() {
 
 // Função para leitura do nível de bateria
 uint8_t leituraBat() {
-    long batSoma = 0;
-    uint8_t batPorcent;
-    for (int i = 0; i < 50; i++) {
-        batSoma += analogRead(BATTERY_PIN);
-    }
-    batPorcent = map(batSoma / 50, 3755, 2555, 100, 0);
-    batPorcent = constrain(batPorcent, 0, 100);
-    Serial.print("Bateria: ");
+    int batReading = analogReadMilliVolts(BATTERY_PIN);
+    int batPorcent;
+    int batVoltage;
+    float batVoltageBattery;
+
+    batVoltage = (((float)batReading) / 4095) * 3.3;
+
+    batVoltageBattery = batVoltage * (R1 + R2) / R2;
+
+    Serial.printf("Tensão medida: %f V\n", batVoltageBattery);
+
+    batPorcent = (((batVoltageBattery - MIN_VOLTAGE)/ (MAX_VOLTAGE - MIN_VOLTAGE))* 100.0);
+
+    if(batPorcent>100)
+        batPorcent = 100;
+    if(batPorcent< 0)
+        batPorcent = 0;
+
     Serial.print(batPorcent);
     Serial.println("%");
     return batPorcent;
